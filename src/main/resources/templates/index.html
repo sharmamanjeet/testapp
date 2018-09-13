@@ -1,0 +1,54 @@
+<html xmlns="http://thymeleaf.org">
+
+<head>
+<link th:href="@{/css/bootstrap.min.css}" rel="stylesheet"
+	type="text/css"></link>
+<link th:href="@{/css/layout.css}" rel="stylesheet" type="text/css"></link>
+</head>
+
+<body>
+	<div class="container">
+		<form class="form-horizontal" action="login" method="post">
+			<fieldset>
+
+				<!-- Form Name -->
+				<legend>User Login</legend>
+
+				<!-- Text input-->
+				<div class="form-group">
+					<label class="col-md-4 control-label" for="userName">Username</label>
+					<div class="col-md-4">
+						<input id="userName" name="userName" type="text"
+							placeholder="Username" class="form-control input-md" required="" />
+
+					</div>
+				</div>
+
+				<!-- Password input-->
+				<div class="form-group">
+					<label class="col-md-4 control-label" for="password">Password</label>
+					<div class="col-md-4">
+						<input id="password" name="password" type="password"
+							placeholder="Password" class="form-control input-md" required="" />
+
+					</div>
+				</div>
+
+				<!-- Button -->
+				<div class="form-group">
+					<label class="col-md-4 control-label" for="submit"></label>
+					<div class="col-md-4">
+						<button id="submit" name="submit"
+							class="btn btn-primary btn-login">Login</button>
+					</div>
+				</div>
+
+			</fieldset>
+		</form>
+
+		<script type="text/javascript" th:src="@{/js/jquery-3.1.0.min.js}"></script>
+		<script type="text/javascript" th:src="@{/js/bootstrap.min.js}"></script>
+	</div>
+</body>
+
+</html>
