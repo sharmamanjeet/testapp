@@ -1,54 +1,78 @@
 <html xmlns="http://thymeleaf.org">
-
 <head>
-<link th:href="@{/css/bootstrap.min.css}" rel="stylesheet"
-	type="text/css"></link>
-<link th:href="@{/css/layout.css}" rel="stylesheet" type="text/css"></link>
+<title>Chat WebSocket</title>
+<script type="text/javascript" th:src="@{/js/sockjs-0.3.4.js}"></script>
+<script type="text/javascript" th:src="@{/js/stomp.js}"></script>
 </head>
+<body onload="disconnect()">
+	<script type="text/javascript">
+		var stompClient = null;
 
-<body>
-	<div class="container">
-		<form class="form-horizontal" action="login" method="post">
-			<fieldset>
+		function setConnected(connected) {
+			document.getElementById('connect').disabled = connected;
+			document.getElementById('disconnect').disabled = !connected;
+			document.getElementById('conversationDiv').style.visibility = connected ? 'visible'
+					: 'hidden';
+			document.getElementById('response').innerHTML = '';
+		}
 
-				<!-- Form Name -->
-				<legend>User Login</legend>
+		function connect() {
+			var socket = new SockJS('/testapp/chat');
+			stompClient = Stomp.over(socket);
+			stompClient.connect({}, function(frame) {
+				setConnected(true);
+				console.log('Connected: ' + frame);
+				stompClient.subscribe('/topic/messages',
+						function(messageOutput) {
+							showMessageOutput(JSON.parse(messageOutput.body));
+						});
+			});
+		}
 
-				<!-- Text input-->
-				<div class="form-group">
-					<label class="col-md-4 control-label" for="userName">Username</label>
-					<div class="col-md-4">
-						<input id="userName" name="userName" type="text"
-							placeholder="Username" class="form-control input-md" required="" />
+		function disconnect() {
+			if (stompClient != null) {
+				stompClient.disconnect();
+			}
+			setConnected(false);
+			console.log("Disconnected");
+		}
 
-					</div>
-				</div>
+		function sendMessage() {
+			var from = document.getElementById('from').value;
+			var text = document.getElementById('text').value;
+			stompClient.send("/testapp/chat", {}, JSON.stringify({
+				'from' : from,
+				'text' : text
+			}));
+		}
 
-				<!-- Password input-->
-				<div class="form-group">
-					<label class="col-md-4 control-label" for="password">Password</label>
-					<div class="col-md-4">
-						<input id="password" name="password" type="password"
-							placeholder="Password" class="form-control input-md" required="" />
+		function showMessageOutput(messageOutput) {
+			var response = document.getElementById('response');
+			var p = document.createElement('p');
+			p.style.wordWrap = 'break-word';
+			p.appendChild(document.createTextNode(messageOutput.from + ": "
+					+ messageOutput.text + " (" + messageOutput.time + ")"));
+			response.appendChild(p);
+		}
+	</script>
 
-					</div>
-				</div>
-
-				<!-- Button -->
-				<div class="form-group">
-					<label class="col-md-4 control-label" for="submit"></label>
-					<div class="col-md-4">
-						<button id="submit" name="submit"
-							class="btn btn-primary btn-login">Login</button>
-					</div>
-				</div>
-
-			</fieldset>
-		</form>
-
-		<script type="text/javascript" th:src="@{/js/jquery-3.1.0.min.js}"></script>
-		<script type="text/javascript" th:src="@{/js/bootstrap.min.js}"></script>
+	<div>
+		<div>
+			<input type="text" id="from" placeholder="Choose a nickname" />
+		</div>
+		<br />
+		<div>
+			<button id="connect" onclick="connect();">Connect</button>
+			<button id="disconnect" disabled="disabled" onclick="disconnect();">
+				Disconnect</button>
+		</div>
+		<br />
+		<div id="conversationDiv">
+			<input type="text" id="text" placeholder="Write a message..." />
+			<button id="sendMessage" onclick="sendMessage();">Send</button>
+			<p id="response"></p>
+		</div>
 	</div>
-</body>
 
+</body>
 </html>
